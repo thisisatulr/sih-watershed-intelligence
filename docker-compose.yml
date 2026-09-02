@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgis/postgis:16-3.5
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-watershed_db}
+      POSTGRES_USER: ${POSTGRES_USER:-watershed}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-watershed_dev_password}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-watershed} -d ${POSTGRES_DB:-watershed_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:
